@@ -1,3 +1,9 @@
+/*   __  _      
+    |  \| |     Copyright (c) 2023 n0dere
+    | . ` |     This software is licensed under the MIT License.
+    |_|\__|     https://github.com/n0dere/NekosBest.h
+*/
+
 #include "nekosbest.h"
 
 #include <stdio.h>

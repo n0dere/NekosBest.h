@@ -1,3 +1,9 @@
+/*   __  _      
+    |  \| |     Copyright (c) 2023 n0dere
+    | . ` |     This software is licensed under the MIT License.
+    |_|\__|     https://github.com/n0dere/NekosBest.h
+*/
+
 #include "httpclient.h"
 
 #include <stdlib.h>
@@ -29,7 +35,9 @@ size_t _nbHttpClientAppendBody(
 
     pResponse->body.pPtr = pNewBody;
         
-    memmove(pResponse->body.pPtr + pResponse->body.size, pContents, realSize);
+    memmove(
+        pResponse->body.pPtr + pResponse->body.size, pContents, realSize
+    );
     
     pResponse->body.pPtr[newBodySize - 1] = '\0';
     pResponse->body.size += realSize;
