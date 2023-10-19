@@ -1,7 +1,13 @@
-/*   __  _      
-    |  \| |     Copyright (c) 2023 n0dere
-    | . ` |     This software is licensed under the MIT License.
-    |_|\__|     https://github.com/n0dere/NekosBest.h
+/*
+    Copyright (c) 2023 n0dere
+    This software is licensed under the MIT License.
+     _   _      _             ____            _     _     
+    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
+    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
+    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
+
+    https://github.com/n0dere/NekosBest.h
 */
 
 #include "httpclient.h"
@@ -15,10 +21,10 @@
 #define URL_MAX_SIZE                        1024
 
 size_t _nbHttpClientAppendBody(
-    char*                   pContents,
-    size_t                  size,
-    size_t                  nmemb,
-    NbHttpResponse*         pResponse
+    char *pContents,
+    size_t size,
+    size_t nmemb,
+    NbHttpResponse *pResponse
 ) {
     char* pNewBody = NULL;
     size_t realSize = size * nmemb;
@@ -46,9 +52,9 @@ size_t _nbHttpClientAppendBody(
 }
 
 NbResult nbHttpClientApiGet(
-    NbHttpClient            httpClient, 
-    NbHttpResponse**        ppResponse, 
-    const char*             pQueryFormat,
+    NbHttpClient httpClient, 
+    NbHttpResponse **ppResponse, 
+    const char *pQueryFormat,
     ...
 ) {
     char url[URL_MAX_SIZE] = {0};
@@ -75,7 +81,7 @@ NbResult nbHttpClientApiGet(
 }
 
 void nbHttpResponseDestroy(
-    NbHttpResponse*         pResponse
+    NbHttpResponse *pResponse
 ) {
     if (pResponse == NULL) {
         free(pResponse->body.pPtr);

@@ -1,7 +1,13 @@
-/*   __  _      
-    |  \| |     Copyright (c) 2023 n0dere
-    | . ` |     This software is licensed under the MIT License.
-    |_|\__|     https://github.com/n0dere/NekosBest.h
+/*
+    Copyright (c) 2023 n0dere
+    This software is licensed under the MIT License.
+     _   _      _             ____            _     _     
+    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
+    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
+    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
+
+    https://github.com/n0dere/NekosBest.h
 */
 
 #include "httpclient.h"
@@ -10,16 +16,16 @@
 #include <winhttp.h>
 
 extern size_t _nbHttpClientAppendBody(
-    char*                   pContents,
-    size_t                  size,
-    size_t                  nmemb,
-    NbHttpResponse*         pResponse
+    char *pContents,
+    size_t size,
+    size_t nmemb,
+    NbHttpResponse *pResponse
 );
 
 static void httpClientHeader(
-    HINTERNET               request,
-    LPCWSTR                 wideKey,
-    char**                  ppDestBufferPtr
+    HINTERNET request,
+    LPCWSTR wideKey,
+    char **ppDestBufferPtr
 ) {
     DWORD size = 0;
     LPVOID wideBuffer = NULL;
@@ -53,8 +59,8 @@ static void httpClientHeader(
 }
 
 static NbResult httpParseResponse(
-    NbHttpResponse**        ppResponse,
-    HINTERNET               request
+    NbHttpResponse **ppResponse,
+    HINTERNET request
 ) {
     NbHttpResponse *pResponse = calloc(1, sizeof *pResponse);
     DWORD downloaded, size;
@@ -98,10 +104,10 @@ static NbResult httpParseResponse(
 }
 
 static NbResult httpClientGetPerform(
-    HINTERNET               httpSession, 
-    NbHttpResponse**        ppResponse,
-    LPCWSTR                 hostname,
-    LPCWSTR                 urlPath
+    HINTERNET httpSession, 
+    NbHttpResponse **ppResponse,
+    LPCWSTR hostname,
+    LPCWSTR urlPath
 ) {
     NbResult result = NB_RESULT_OK;
     HINTERNET connect, request;
@@ -142,7 +148,7 @@ static NbResult httpClientGetPerform(
 }
 
 NbResult nbHttpClientCreate(
-    NbHttpClient*           pHttpClient
+    NbHttpClient *pHttpClient
 ) {
     HINTERNET httpSession;
 
@@ -167,9 +173,9 @@ NbResult nbHttpClientCreate(
 }
 
 NbResult nbHttpClientGet(
-    NbHttpClient            httpClient, 
-    NbHttpResponse**        ppResponse, 
-    const char*             pUrl
+    NbHttpClient httpClient, 
+    NbHttpResponse **ppResponse, 
+    const char *pUrl
 ) {
     URL_COMPONENTS urlComp = {0};
     HINTERNET httpSession = (HINTERNET) httpClient;
@@ -222,7 +228,7 @@ NbResult nbHttpClientGet(
 }
 
 void nbHttpClientDestroy(
-    NbHttpClient            pHttpClient
+    NbHttpClient pHttpClient
 ) {
     if (pHttpClient != NULL)
         WinHttpCloseHandle((HINTERNET) pHttpClient);

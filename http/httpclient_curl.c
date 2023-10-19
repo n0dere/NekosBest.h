@@ -1,7 +1,13 @@
-/*   __  _      
-    |  \| |     Copyright (c) 2023 n0dere
-    | . ` |     This software is licensed under the MIT License.
-    |_|\__|     https://github.com/n0dere/NekosBest.h
+/*
+    Copyright (c) 2023 n0dere
+    This software is licensed under the MIT License.
+     _   _      _             ____            _     _     
+    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
+    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
+    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
+
+    https://github.com/n0dere/NekosBest.h
 */
 
 #include "httpclient.h"
@@ -13,16 +19,16 @@
 #include <curl/curl.h>
 
 extern size_t _nbHttpClientAppendBody(
-    char*                   pContents,
-    size_t                  size,
-    size_t                  nmemb,
-    NbHttpResponse*         pResponse
+    char *pContents,
+    size_t size,
+    size_t nmemb,
+    NbHttpResponse *pResponse
 );
 
 static void parseHeaderValue(
-    const char*             pContents,
-    const char*             pHeaderKey,
-    char**                  ppValueDest
+    const char *pContents,
+    const char *pHeaderKey,
+    char **ppValueDest
 ) {
     char format[512] = {0};
 
@@ -44,10 +50,10 @@ static void parseHeaderValue(
 }
 
 static size_t curlHttpHeaderFunction(
-    char*                   pContents,
-    size_t                  size,
-    size_t                  nmemb,
-    NbHttpResponse*         pResponse
+    char *pContents,
+    size_t size,
+    size_t nmemb,
+    NbHttpResponse *pResponse
 ) {
     parseHeaderValue(pContents, "x-rate-limit-remaining",
         &pResponse->header.pXRateLimitRemaining
@@ -61,9 +67,9 @@ static size_t curlHttpHeaderFunction(
 }
 
 static void curlHttpSetOptions(
-    CURL*                   pCurl,
-    const char*             pUrl,
-    NbHttpResponse*         pResponse
+    CURL *pCurl,
+    const char *pUrl,
+    NbHttpResponse *pResponse
 ) {
     curl_easy_setopt(pCurl, CURLOPT_USERAGENT, NB_HTTPCLIENT_USERAGENT);
 
@@ -78,7 +84,7 @@ static void curlHttpSetOptions(
 }
 
 NbResult nbHttpClientCreate(
-    NbHttpClient*           pHttpClient
+    NbHttpClient *pHttpClient
 ) {
     CURL* pCurlSession = curl_easy_init();
 
@@ -89,9 +95,9 @@ NbResult nbHttpClientCreate(
 }
 
 NbResult nbHttpClientGet(
-    NbHttpClient            httpClient, 
-    NbHttpResponse**        ppResponse, 
-    const char*             pUrl
+    NbHttpClient httpClient, 
+    NbHttpResponse **ppResponse, 
+    const char *pUrl
 ) {
     CURL *pCurlSession = (CURL*) httpClient;
     NbResult result = NB_RESULT_OK;
@@ -123,7 +129,7 @@ NbResult nbHttpClientGet(
 }
 
 void nbHttpClientDestroy(
-    NbHttpClient            pHttpClient
+    NbHttpClient pHttpClient
 ) {
     if (pHttpClient != NULL)
         curl_easy_cleanup((CURL*) pHttpClient);

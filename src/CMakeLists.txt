@@ -1,15 +1,8 @@
-configure_file(./version.h.in ${PROJECT_SOURCE_DIR}/version.h)
+file(GLOB NB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
 
-add_executable(NekosBest nekosbest.c httpclient_core.c httpclient_curl.c)
+add_library(NekosBest SHARED ${NB_SOURCES})
 
-if (MSVC)
-    target_compile_definitions(NekosBest PRIVATE -D_CRT_SECURE_NO_WARNINGS)
-endif ()
+target_link_libraries(NekosBest PRIVATE NekosBest_HTTP)
 
-find_package(CURL REQUIRED)
-
-target_link_libraries(NekosBest PUBLIC ${CURL_LIBRARIES})
-
-target_include_directories(NekosBest PRIVATE ../include)
-
-target_link_libraries(NekosBest PRIVATE winhttp shlwapi)
+target_include_directories(NekosBest PUBLIC ../include)
+target_include_directories(NekosBest PRIVATE ${NB_VERSION_HEADER_DIR})
