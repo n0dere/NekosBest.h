@@ -38,6 +38,10 @@ enum _NbResult {
     NB_RESULT_HTTPCLIENT_INITIALIZATION_ERROR,
     NB_RESULT_HTTPCLIENT_INTERNAL_ERROR,
     NB_RESULT_CLIENT_INTERNAL_INIT_ERROR,
+    NB_RESULT_JSON_PARSE_ERROR,
+    NB_RESULT_AMOUNT_IS_INCORRECT,
+    NB_RESULT_BAD_RESPONSE_STATUS_CODE,
+    NB_RESULT_UNKNOWN_CATEGORY,
 };
 
 enum _NbImageFormat {
@@ -118,19 +122,18 @@ NB_API const NbApiInfo *nbGetApiInfo(void);
  * 
  * The caller is responsible for destroying the client object with
  * nbDestroyClient when it is no longer needed.
-*/
-NB_API NbResult nbCreateClient(
-    /* a pointer to a NbClient variable that will receive the created client
-       object. */
-    NbClient *pClient
-);
+ * 
+ * Args:    pClient - a pointer to a NbClient variable that will receive the
+ *          created client object.
+ */
+NB_API NbResult nbCreateClient(NbClient *pClient);
 
 /* Returns the last error code that occurred during an API call by the client.
+ * 
+ * Args:    client - a NbClient object that represents the communication with
+ *          the API
  */
-NB_API NbResult nbClientGetLastError(
-    /* a NbClient object that represents the communication with the API */
-    const NbClient client
-);
+NB_API NbResult nbClientGetLastError(const NbClient client);
 
 /* Fetches a collection of images from the nekos.best API based on the given
  * category and amount.
@@ -141,16 +144,16 @@ NB_API NbResult nbClientGetLastError(
  * 
  * The caller is responsible for destroying the NbResponse object with
  * nbDestroyResponse when it is no longer needed.
+ * 
+ * Args:    client - a NbClient object that represents the communication with
+ *          the API
+ *          pCategory - a null-terminated string that specifies the category
+ *          of images to fetch, e.g. "neko", "kitsune", etc. (optional)
+ *          amount - a integer that specifies the maximum number of images
+ *          to fetch
 */
-NB_API NbResponse *nbClientFetch(
-    /* a NbClient object that represents the communication with the API */
-    NbClient client,
-    /* a null-terminated string that specifies the category of images to fetch,
-       e.g. "neko", "kitsune", etc. (optional) */
-    const char *pCategory,
-    /* a integer that specifies the maximum number of images to fetch */
-    size_t amount
-);
+NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
+                                 size_t amount);
 
 /* Searches for images from the nekos.best API based on the given query and
  * options.
@@ -161,17 +164,17 @@ NB_API NbResponse *nbClientFetch(
  * 
  * The caller is responsible for destroying the NbResponse object with
  * nbDestroyResponse when it is no longer needed.
+ * 
+ * Args:    client - a NbClient object that represents the communication with
+ *          the API
+ *          pQuery - a null-terminated string that specifies the query
+ *          to search for, e.g. "Senko", "Yuru Yuri", etc.
+ *          pOptions - a pointer to a NbSearchOptions object that specifies
+ *          the options for the search, e.g. image format, amount, category,
+ *          etc. (optional)
  */
-NB_API NbResponse *nbClientSearch(
-    /* a NbClient object that represents the communication with the API */
-    NbClient client,
-    /* a null-terminated string that specifies the query to search for,
-       e.g. "Senko", "Yuru Yuri", etc. */
-    const char *pQuery,
-    /* a pointer to a NbSearchOptions object that specifies the options for the
-       search, e.g. image format, amount, category, etc. (optional)*/
-    const NbSearchOptions *pOptions
-);
+NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
+                                  const NbSearchOptions *pOptions);
 
 /* Fetches and download a file with its metadata from the nekos.best API
  * based on the given category.
@@ -182,41 +185,38 @@ NB_API NbResponse *nbClientSearch(
  * 
  * The caller is responsible for destroying the NbBufferResponse object with
  * nbDestroyBufferResponse when it is no longer needed.
+ * 
+ * Args:    client - a NbClient object that represents the communication with
+ *          the API
+ *          pCategory - a null-terminated string that specifies the category
+ *          of images to fetch, e.g. "neko", "kitsune", etc. (optional)
  */
-NB_API NbBufferResponse *nbClientFetchFile(
-    /* a NbClient object that represents the communication with the API */
-    NbClient client,
-    /* a null-terminated string that specifies the category of images to fetch,
-       e.g. "neko", "kitsune", etc. (optional) */
-    const char *pCategory
-);
+NB_API NbBufferResponse *nbClientFetchFile(NbClient client,
+                                           const char *pCategory);
 
 /* Destroys a client object that was created by nbCreateClient and frees the
  * memory allocated for it.
  *
  * This function also cleans up any internal resources used by the client
  * object, such as the HTTP client
+ * 
+ * Args:    client - a NbClient object
  */
-NB_API void nbDestroyClient(
-    /* a NbClient object that represents the communication with the API */
-    NbClient client
-);
+NB_API void nbDestroyClient(NbClient client);
 
 /* Destroys a response object that was created by nbClientFetch or
  * nbClientSearch and frees the memory allocated for it.
+ *
+ * Args:    pResponse - a pointer to a NbResponse object
  */
-NB_API void nbDestroyResponse(
-    /* a pointer to a NbResponse object */
-    NbResponse *pResponse
-);
+NB_API void nbDestroyResponse(NbResponse *pResponse);
 
 /* Destroys a buffer response object that was created by nbClientFetchFile
  * and frees the memory allocated for it and the file data.
+ * 
+ * Args:    pBufferResponse - a pointer to a NbBufferResponse object
  */
-NB_API void nbDestroyBufferResponse(
-    /* a pointer to a NbBufferResponse object */
-    NbBufferResponse *pBufferResponse
-);
+NB_API void nbDestroyBufferResponse(NbBufferResponse *pBufferResponse);
 
 #ifdef __cplusplus
 }

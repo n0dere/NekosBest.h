@@ -33,32 +33,24 @@ struct _HttpResponse {
     struct {
         char *pXRateLimitRemaining;
         char *pXRateLimitReset;
+        char *pAnimeName;
+        char *pArtistHref;
+        char *pArtistName;
+        char *pSourceUrl;
     } header;
 };
 
-NbResult nbHttpClientCreate(
-    NbHttpClient *pHttpClient
-);
+NbResult nbHttpClientCreate(NbHttpClient *pHttpClient);
 
-NbResult nbHttpClientGet(
-    NbHttpClient httpClient, 
-    NbHttpResponse **ppResponse, 
-    const char *pUrl
-);
+NbResult nbHttpClientGet(NbHttpClient httpClient, NbHttpResponse **ppResponse, 
+                         const char *pUrl);
 
-NbResult nbHttpClientApiGet(
-    NbHttpClient httpClient, 
-    NbHttpResponse **ppResponse, 
-    const char *pQueryFormat,
-    ...
-);
+void nbHttpResponseDestroy(NbHttpResponse *pResponse);
 
-void nbHttpResponseDestroy(
-    NbHttpResponse *pResponse
-);
+void nbHttpClientDestroy(NbHttpClient pHttpClient);
 
-void nbHttpClientDestroy(
-    NbHttpClient pHttpClient
-);
+char *nbHttpEscape(const char *pString);
+
+char *nbHttpUnescape(const char *pString);
 
 #endif /* _HTTPCLIENT_H_ */

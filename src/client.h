@@ -1,8 +1,21 @@
+/*
+    Copyright (c) 2023 n0dere
+    This software is licensed under the MIT License.
+     _   _      _             ____            _     _     
+    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
+    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
+    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
+
+    https://github.com/n0dere/NekosBest.h
+*/
+
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
 #include <stdint.h>
 #include <time.h>
+#include <stdbool.h>
 
 #include <tinycthread.h>
 
@@ -19,15 +32,15 @@ struct _NbClient {
     } ratelimit;
 };
 
-unsigned int nbClientRandom(
-    NbClient client,
-    unsigned int min,
-    unsigned int max
-);
+unsigned int nbClientRandom(NbClient client, unsigned int min,
+                            unsigned int max);
 
-void nbClientSetLastError(
-    NbClient client,
-    NbResult error
-);
+void nbClientSetLastError(NbClient client, NbResult error);
+
+NbHttpResponse *nbClientApiGet(NbClient client, const char *pQueryFormat, ...);
+
+const char *nbClientPickRandomCategory(NbClient client);
+
+bool nbValidateCategory(const char *pCategory);
 
 #endif /* _CLIENT_H_ */

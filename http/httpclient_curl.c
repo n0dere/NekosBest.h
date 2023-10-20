@@ -63,6 +63,22 @@ static size_t curlHttpHeaderFunction(
         &pResponse->header.pXRateLimitReset
     );
 
+    parseHeaderValue(pContents, "artist_name",
+        &pResponse->header.pArtistName
+    );
+    
+    parseHeaderValue(pContents, "artist_href",
+        &pResponse->header.pArtistHref
+    );
+    
+    parseHeaderValue(pContents, "anime_name",
+        &pResponse->header.pAnimeName
+    );
+    
+    parseHeaderValue(pContents, "source_url",
+        &pResponse->header.pSourceUrl
+    );
+
     return size * nmemb;
 }
 
@@ -92,6 +108,8 @@ NbResult nbHttpClientCreate(
         return NB_RESULT_HTTPCLIENT_INITIALIZATION_ERROR;
     
     *pHttpClient = (NbHttpClient) pCurlSession;
+
+    return NB_RESULT_OK;
 }
 
 NbResult nbHttpClientGet(
@@ -133,4 +151,37 @@ void nbHttpClientDestroy(
 ) {
     if (pHttpClient != NULL)
         curl_easy_cleanup((CURL*) pHttpClient);
+}
+
+char *nbHttpEscape(
+    const char *pString
+) {
+    char *pCurlString, *pEscaped = NULL;
+    size_t size;
+
+    if (pString != NULL) {
+        pCurlString = curl_easy_escape(NULL, pString, 0);
+        size = strlen(pCurlString);
+        pEscaped = calloc(size + 1, sizeof *pEscaped);
+        strncpy(pEscaped, pCurlString, size);
+        curl_free(pCurlString);
+    }
+
+    return pEscaped;
+}
+
+char *nbHttpUnescape(
+    const char *pString
+) {
+    char *pCurlString, *pUnescaped = NULL;
+    int decodeLen;
+
+    if (pString != NULL) {
+        pCurlString = curl_easy_unescape(NULL, pString, 0, &decodeLen);
+        pUnescaped = calloc(decodeLen + 1, sizeof *pUnescaped);
+        strncpy(pUnescaped, pCurlString, decodeLen);
+        curl_free(pCurlString);
+    }
+
+    return pUnescaped;
 }

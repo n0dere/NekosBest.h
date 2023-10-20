@@ -7,7 +7,7 @@ if (TRUE)
     target_link_libraries(NekosBest_HTTP PUBLIC ${CURL_LIBRARIES})
     target_sources(NekosBest_HTTP PRIVATE httpclient_curl.c)
 else ()
-    target_link_libraries(NekosBest PRIVATE winhttp shlwapi)
+    target_link_libraries(NekosBest_HTTP PRIVATE winhttp shlwapi)
     target_sources(NekosBest_HTTP PRIVATE httpclient_win.c)
 endif ()
 

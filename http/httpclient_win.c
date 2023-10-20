@@ -14,6 +14,8 @@
 
 #include <windows.h>
 #include <winhttp.h>
+#include <string.h>
+#include <shlwapi.h>
 
 extern size_t _nbHttpClientAppendBody(
     char *pContents,
@@ -96,6 +98,22 @@ static NbResult httpParseResponse(
 
     httpClientHeader(request, L"x-rate-limit-reset",
         &pResponse->header.pXRateLimitReset
+    );
+
+    httpClientHeader(request, L"artist_name",
+        &pResponse->header.pArtistName
+    );
+    
+    httpClientHeader(request, L"artist_href",
+        &pResponse->header.pArtistHref
+    );
+    
+    httpClientHeader(request, L"anime_name",
+        &pResponse->header.pAnimeName
+    );
+    
+    httpClientHeader(request, L"source_url",
+        &pResponse->header.pSourceUrl
     );
 
     *ppResponse = pResponse;
@@ -232,4 +250,50 @@ void nbHttpClientDestroy(
 ) {
     if (pHttpClient != NULL)
         WinHttpCloseHandle((HINTERNET) pHttpClient);
+}
+
+char *nbHttpEscape(
+    const char *pString
+) {
+    char *escaped = NULL;
+    DWORD size;
+
+    if (pString != NULL)
+        return NULL;
+    
+    size = strlen(pString) * 3 + 1;
+    escaped = calloc(size, sizeof *escaped);
+
+    if (escaped == NULL)
+        return NULL;
+
+    if (FAILED(UrlEscapeA(pString, escaped, &size, 0))) {
+        free(escaped);
+        return NULL;
+    }
+
+    return escaped;
+}
+
+char *nbHttpUnescape(
+    const char *pString
+) {
+    char *unescaped = NULL;
+    DWORD size;
+
+    if (pString != NULL)
+        return NULL;
+    
+    size = strlen(pString) + 1;
+    unescaped = calloc(size, sizeof *unescaped);
+
+    if (unescaped == NULL)
+        return NULL;
+
+    if (FAILED(UrlUnescapeA((LPSTR)pString, unescaped, &size, 0))) {
+        free(unescaped);
+        return NULL;
+    }
+    
+    return unescaped;
 }

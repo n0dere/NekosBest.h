@@ -12,17 +12,78 @@
 
 #include "nekosbest.h"
 
-NB_API NbResponse *nbClientFetch(
-    NbClient client,
-    const char *pCategory,
-    size_t amount
-) {
+#include <stdint.h>
 
+#include "client.h"
+#include "httpclient.h"
+#include "response.h"
+
+NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
+                                 size_t amount)
+{
+    NbHttpResponse *pHttpResponse = NULL;
+    NbResponse *pResponse = NULL;
+    NbResult result = NB_RESULT_OK;
+
+    if (client == NULL)
+        return NULL;
+
+    if (pCategory == NULL)
+        pCategory = nbClientPickRandomCategory(client);
+    else {
+        if (nbValidateCategory(pCategory) == false) {
+            nbClientSetLastError(client, NB_RESULT_UNKNOWN_CATEGORY);
+            return NULL;
+        }
+    }
+
+    if (amount < 1 || amount > 20) {
+        nbClientSetLastError(client, NB_RESULT_AMOUNT_IS_INCORRECT);
+        return NULL;
+    }
+
+    pHttpResponse = nbClientApiGet(client,
+        "/%s?amount=%u", pCategory, (uint32_t) amount
+    );
+
+    if (pHttpResponse == NULL)
+        return NULL;
+
+    if (pHttpResponse->status != 200) {
+        nbClientSetLastError(client, NB_RESULT_BAD_RESPONSE_STATUS_CODE);
+        nbHttpResponseDestroy(pHttpResponse);
+        return NULL;
+    }
+
+    pResponse = nbResponseFromHttpResponse(client, pHttpResponse);
+
+    nbHttpResponseDestroy(pHttpResponse);
+    return pResponse;
 }
 
-NB_API NbBufferResponse *nbClientFetchFile(
-    NbClient client,
-    const char *pCategory
-) {
+NB_API NbBufferResponse *nbClientFetchFile(NbClient client,
+                                           const char *pCategory)
+{
+    NbResponse *pResponse = nbClientFetch(client, pCategory, 1);
+    NbHttpResponse *pHttpResponse = NULL;
+    NbBufferResponse *pBufferResponse = NULL;
+    NbResult result;
+
+    if (pResponse == NULL)
+        return NULL;
     
+    result = nbHttpClientGet(client->httpClient, &pHttpResponse,
+                             pResponse->pResults[0].pUrl);
+    
+    if (result != NB_RESULT_OK) {
+        nbDestroyResponse(pResponse);
+        nbClientSetLastError(client, result);
+        return NULL;
+    }
+
+    pBufferResponse = nbBufferResponseFromHttpResponse(client, pHttpResponse);
+
+    nbDestroyResponse(pResponse);
+
+    return pBufferResponse;
 }

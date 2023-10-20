@@ -11,9 +11,10 @@
 */
 
 #include "nekosbest.h"
+#include "httpclient.h"
 
-NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
-                                  const NbSearchOptions *pOptions)
-{
-    return NB_RESULT_OK;
-}
+NbBufferResponse *nbBufferResponseFromHttpResponse(NbClient client,
+                                                   NbHttpResponse *pResponse);
+
+NbResponse *nbResponseFromHttpResponse(NbClient client,
+                                       NbHttpResponse *pHttpResponse);
