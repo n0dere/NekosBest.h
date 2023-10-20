@@ -17,6 +17,7 @@
 #include "client.h"
 #include "httpclient.h"
 #include "response.h"
+#include "categories.h"
 
 NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
                                  size_t amount)
@@ -29,7 +30,7 @@ NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
         return NULL;
 
     if (pCategory == NULL)
-        pCategory = nbClientPickRandomCategory(client);
+        pCategory = nbPickRandomCategory(client);
     else {
         if (nbValidateCategory(pCategory) == false) {
             nbClientSetLastError(client, NB_RESULT_UNKNOWN_CATEGORY);

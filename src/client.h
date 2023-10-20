@@ -39,10 +39,4 @@ void nbClientSetLastError(NbClient client, NbResult error);
 
 NbHttpResponse *nbClientApiGet(NbClient client, const char *pQueryFormat, ...);
 
-const char *nbClientPickRandomCategory(NbClient client);
-
-NbImageFormat nbGetCategoryImageFormat(const char *pCategory);
-
-bool nbValidateCategory(const char *pCategory);
-
 #endif /* _CLIENT_H_ */
