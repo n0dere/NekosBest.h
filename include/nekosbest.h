@@ -1,14 +1,14 @@
-/*
-    Copyright (c) 2023 n0dere
-    This software is licensed under the MIT License.
-     _   _      _             ____            _     _     
-    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
-    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
-    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
-    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
-
-    https://github.com/n0dere/NekosBest.h
-*/
+/*                  _             _               _     _     
+ *       _ __   ___| | _____  ___| |__   ___  ___| |_  | |__  
+ *      | '_ \ / _ \ |/ / _ \/ __| '_ \ / _ \/ __| __| | '_ \ 
+ *      | | | |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+ *      |_| |_|\___|_|\_\___/|___/_.__/ \___||___/\__(_)_| |_|
+ *                                                  
+ *      Copyright (c) 2023 n0dere
+ *      This software is licensed under the MIT License.
+ * 
+ *      https://github.com/n0dere/NekosBest.h
+ */
 
 #ifndef _NEKOSBEST_H_
 #define _NEKOSBEST_H_
@@ -42,7 +42,7 @@ enum _NbResult {
     NB_RESULT_AMOUNT_IS_INCORRECT,
     NB_RESULT_BAD_RESPONSE_STATUS_CODE,
     NB_RESULT_UNKNOWN_CATEGORY,
-    NB_RESULT_RATELIMIT,
+    NB_RESULT_SEARCH_RATE_LIMITED,
     NB_RESULT_QUERY_LEN_IS_INCORRECT,
 };
 
@@ -144,6 +144,9 @@ NB_API NbResult nbClientGetLastError(const NbClient client);
  * response into a NbResponse object that contains the information about each
  * image.
  * 
+ * Returns NULL if an error occurred. To get the error code (NbResult) call
+ * nbClientGetLastError.
+ * 
  * The caller is responsible for destroying the NbResponse object with
  * nbDestroyResponse when it is no longer needed.
  * 
@@ -163,6 +166,9 @@ NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
  * This function performs a network request to the API and parses the JSON
  * response into a NbResponse object that contains the information about each
  * image.
+ * 
+ * Returns NULL if an error occurred. To get the error code (NbResult) call
+ * nbClientGetLastError.
  * 
  * The caller is responsible for destroying the NbResponse object with
  * nbDestroyResponse when it is no longer needed.
@@ -184,6 +190,9 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
  * This function performs a network request to the API and downloads the file
  * data into a NbBufferResponse object that contains the information and
  * the data of the file.
+ * 
+ * Returns NULL if an error occurred. To get the error code (NbResult) call
+ * nbClientGetLastError.
  * 
  * The caller is responsible for destroying the NbBufferResponse object with
  * nbDestroyBufferResponse when it is no longer needed.

@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(NekosBest VERSION 2.0.0)
 
-if (MSVC)
-    add_compile_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif ()
-
 set(NB_VERSION_HEADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/include CACHE STRING "")
 
 configure_file(
@@ -12,7 +8,6 @@ configure_file(
     ${NB_VERSION_HEADER_DIR}/version.h
 )
 
-add_subdirectory(http)
 add_subdirectory(src)
 
 add_executable(test main.c)

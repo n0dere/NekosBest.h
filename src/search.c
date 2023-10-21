@@ -1,14 +1,14 @@
-/*
-    Copyright (c) 2023 n0dere
-    This software is licensed under the MIT License.
-     _   _      _             ____            _     _     
-    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
-    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
-    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
-    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
-
-    https://github.com/n0dere/NekosBest.h
-*/
+/*                  _             _               _     _     
+ *       _ __   ___| | _____  ___| |__   ___  ___| |_  | |__  
+ *      | '_ \ / _ \ |/ / _ \/ __| '_ \ / _ \/ __| __| | '_ \ 
+ *      | | | |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+ *      |_| |_|\___|_|\_\___/|___/_.__/ \___||___/\__(_)_| |_|
+ *                                                  
+ *      Copyright (c) 2023 n0dere
+ *      This software is licensed under the MIT License.
+ * 
+ *      https://github.com/n0dere/NekosBest.h
+ */
 
 #include "nekosbest.h"
 
@@ -19,6 +19,7 @@
 
 #include "client.h"
 #include "response.h"
+#include "categories.h"
 
 static const NbSearchOptions defaultOptions = {
     .amount = 1,
@@ -33,7 +34,7 @@ static time_t parseTimeStringISO8601(const char *pTimeString)
     if (pTimeString == NULL)
         return 0;
 
-    /* 2023-08-24T20:16:30.0000000Z */
+    /* 2023-10-21T20:16:30.0000000Z */
     sscanf(pTimeString, "%d-%d-%dT%d:%d:%d", &time.tm_year, &time.tm_mon,
            &time.tm_mday, &time.tm_hour, &time.tm_min, &time.tm_sec);
 
@@ -76,6 +77,7 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
     NbImageFormat imageFormat = NB_IMAGE_FORMAT_UNKNOWN;
     char *pEscapedQuery = NULL;
     NbResponse *pResponse = NULL;
+    NbResult result = NB_RESULT_OK;
     size_t queryLen;
 
     if (client == NULL)
@@ -87,7 +89,7 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
     }
 
     if (isRateLimited(client) == true) {
-        nbClientSetLastError(client, NB_RESULT_RATELIMIT);
+        nbClientSetLastError(client, NB_RESULT_SEARCH_RATE_LIMITED);
         return NULL;
     }
 
@@ -119,7 +121,7 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
         imageFormat = pOptions->imageFormat;
 
     if (pOptions->pCategory == NULL) {
-        pHttpResponse = nbClientApiGet(client,
+        result = nbHttpClientApiGet(client->httpClient, &pHttpResponse,
             "/search?query=%s&type=%u&amount=%u", pEscapedQuery,
             (uint32_t) imageFormat, (uint32_t) pOptions->amount
         );
@@ -133,7 +135,7 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
             return NULL;
         }
 
-        pHttpResponse = nbClientApiGet(client,
+        result = nbHttpClientApiGet(client->httpClient, &pHttpResponse,
             "/search?query=%s&type=%u&amount=%u&category=%s",
             pEscapedQuery, (uint32_t) imageFormat,
             (uint32_t) pOptions->amount, pOptions->pCategory
@@ -142,8 +144,10 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
 
     free(pEscapedQuery);
 
-    if (pHttpResponse == NULL)
+    if (result != NB_RESULT_OK) {
+        nbClientSetLastError(client, result);
         return NULL;
+    }
 
     if (pHttpResponse->status != 200) {
         nbClientSetLastError(client, NB_RESULT_BAD_RESPONSE_STATUS_CODE);

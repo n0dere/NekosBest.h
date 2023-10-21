@@ -1,14 +1,14 @@
-/*
-    Copyright (c) 2023 n0dere
-    This software is licensed under the MIT License.
-     _   _      _             ____            _     _     
-    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
-    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
-    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
-    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
-
-    https://github.com/n0dere/NekosBest.h
-*/
+/*                  _             _               _     _     
+ *       _ __   ___| | _____  ___| |__   ___  ___| |_  | |__  
+ *      | '_ \ / _ \ |/ / _ \/ __| '_ \ / _ \/ __| __| | '_ \ 
+ *      | | | |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+ *      |_| |_|\___|_|\_\___/|___/_.__/ \___||___/\__(_)_| |_|
+ *                                                  
+ *      Copyright (c) 2023 n0dere
+ *      This software is licensed under the MIT License.
+ * 
+ *      https://github.com/n0dere/NekosBest.h
+ */
 
 #include "httpclient.h"
 
@@ -18,12 +18,8 @@
 
 #include <curl/curl.h>
 
-extern size_t _nbHttpClientAppendBody(
-    char *pContents,
-    size_t size,
-    size_t nmemb,
-    NbHttpResponse *pResponse
-);
+extern size_t nbHttpResponseAppendBody(char *pContents, size_t size,
+        size_t nmemb, NbHttpResponse *pResponse);
 
 static void parseHeaderValue(
     const char *pContents,
@@ -91,7 +87,7 @@ static void curlHttpSetOptions(
 
     curl_easy_setopt(pCurl, CURLOPT_URL, pUrl);
     curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, pResponse);
-    curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, _nbHttpClientAppendBody);
+    curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, nbHttpResponseAppendBody);
     
     curl_easy_setopt(pCurl, CURLOPT_HEADERDATA, pResponse);
     curl_easy_setopt(pCurl, CURLOPT_HEADERFUNCTION, curlHttpHeaderFunction);

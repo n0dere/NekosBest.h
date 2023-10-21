@@ -36,29 +36,43 @@ int main(void)
 #endif
 
 #if 1
+
+static void printResponse(const NbResponse *pResponse)
+{
+    int i;
+
+    if (pResponse != NULL) {
+        for (i = 0; i < pResponse->resultsCount; ++i)
+            puts(pResponse->pResults[i].pUrl);
+    }
+}
+
 int main(void)
 {
-    NbClient pClient;
+    NbClient client;
     NbResponse *pResponse;
-    int i;
     NbSearchOptions options = {0};
+    int i;
 
-    options.amount = 5;
+    options.amount = 1;
     options.imageFormat = NB_IMAGE_FORMAT_GIF;
 
-    if (nbCreateClient(&pClient) != NB_RESULT_OK)
+    if (nbCreateClient(&client) != NB_RESULT_OK)
         return -1;
     
-    pResponse = nbClientSearch(pClient, "Yuru Yuri", &options);
+    for (i = 0; i < 100; ++i) {
+        pResponse = nbClientSearch(client, "Yuru Yuri", &options);
 
-    if (pResponse == NULL) {
-        printf("%d\n", (int) nbClientGetLastError(pClient));
-        return -1;
+        if (pResponse != NULL)
+            printResponse(pResponse);
+        else
+            printf("%d\n", (int) nbClientGetLastError(client));
+
+        puts("----------");
     }
-    
-    for (i = 0; i < pResponse->resultsCount; ++i)
-        puts(pResponse->pResults[i].pUrl);
 
+    pResponse = nbClientFetch(client, "waifu", 10);
+    printResponse(pResponse);
     nbDestroyResponse(pResponse);
     return 0;
 }

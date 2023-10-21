@@ -1,14 +1,14 @@
-/*
-    Copyright (c) 2023 n0dere
-    This software is licensed under the MIT License.
-     _   _      _             ____            _     _     
-    | \ | | ___| | _____  ___| __ )  ___  ___| |_  | |__  
-    |  \| |/ _ \ |/ / _ \/ __|  _ \ / _ \/ __| __| | '_ \ 
-    | |\  |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
-    |_| \_|\___|_|\_\___/|___/____/ \___||___/\__(_)_| |_|    
-
-    https://github.com/n0dere/NekosBest.h
-*/
+/*                  _             _               _     _     
+ *       _ __   ___| | _____  ___| |__   ___  ___| |_  | |__  
+ *      | '_ \ / _ \ |/ / _ \/ __| '_ \ / _ \/ __| __| | '_ \ 
+ *      | | | |  __/   < (_) \__ \ |_) |  __/\__ \ |_ _| | | |
+ *      |_| |_|\___|_|\_\___/|___/_.__/ \___||___/\__(_)_| |_|
+ *                                                  
+ *      Copyright (c) 2023 n0dere
+ *      This software is licensed under the MIT License.
+ * 
+ *      https://github.com/n0dere/NekosBest.h
+ */
 
 #include "httpclient.h"
 
@@ -17,12 +17,8 @@
 #include <string.h>
 #include <shlwapi.h>
 
-extern size_t _nbHttpClientAppendBody(
-    char *pContents,
-    size_t size,
-    size_t nmemb,
-    NbHttpResponse *pResponse
-);
+extern size_t nbHttpResponseAppendBody(char *pContents, size_t size,
+        size_t nmemb, NbHttpResponse *pResponse);
 
 static void httpClientHeader(
     HINTERNET request,
@@ -87,7 +83,7 @@ static NbResult httpParseResponse(
             break;
         
         WinHttpReadData(request, pBuffer, size, &downloaded);
-        _nbHttpClientAppendBody(pBuffer, size, 1, pResponse);
+        nbHttpResponseAppendBody(pBuffer, size, 1, pResponse);
         free(pBuffer);
     }
     while (size > 0);
@@ -165,9 +161,8 @@ static NbResult httpClientGetPerform(
     return result;
 }
 
-NbResult nbHttpClientCreate(
-    NbHttpClient *pHttpClient
-) {
+NbResult nbHttpClientCreate(NbHttpClient *pHttpClient)
+{
     HINTERNET httpSession;
 
     if (pHttpClient == NULL)
@@ -190,11 +185,9 @@ NbResult nbHttpClientCreate(
     return NB_RESULT_OK;
 }
 
-NbResult nbHttpClientGet(
-    NbHttpClient httpClient, 
-    NbHttpResponse **ppResponse, 
-    const char *pUrl
-) {
+NbResult nbHttpClientGet(NbHttpClient httpClient, NbHttpResponse **ppResponse, 
+                         const char *pUrl)
+{
     URL_COMPONENTS urlComp = {0};
     HINTERNET httpSession = (HINTERNET) httpClient;
     NbResult result = NB_RESULT_OK;
@@ -245,20 +238,18 @@ NbResult nbHttpClientGet(
     return result;
 }
 
-void nbHttpClientDestroy(
-    NbHttpClient pHttpClient
-) {
+void nbHttpClientDestroy(NbHttpClient pHttpClient)
+{
     if (pHttpClient != NULL)
         WinHttpCloseHandle((HINTERNET) pHttpClient);
 }
 
-char *nbHttpEscape(
-    const char *pString
-) {
+char *nbHttpEscape(const char *pString)
+{
     char *escaped = NULL;
     DWORD size;
 
-    if (pString != NULL)
+    if (pString == NULL)
         return NULL;
     
     size = strlen(pString) * 3 + 1;
@@ -275,13 +266,12 @@ char *nbHttpEscape(
     return escaped;
 }
 
-char *nbHttpUnescape(
-    const char *pString
-) {
+char *nbHttpUnescape(const char *pString)
+{
     char *unescaped = NULL;
     DWORD size;
 
-    if (pString != NULL)
+    if (pString == NULL)
         return NULL;
     
     size = strlen(pString) + 1;
