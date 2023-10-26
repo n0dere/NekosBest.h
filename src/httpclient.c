@@ -14,11 +14,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
-
-#define URL_MAX_SIZE 1024
 
 size_t nbHttpResponseAppendBody(char *pContents, size_t size, size_t nmemb,
                                 NbHttpResponse *pResponse)
@@ -26,7 +22,7 @@ size_t nbHttpResponseAppendBody(char *pContents, size_t size, size_t nmemb,
     size_t realSize = size * nmemb;
     size_t newBodySize = 0;
 
-    if (pResponse == NULL || realSize <= 0)
+    if (pResponse == NULL || realSize == 0)
         return 0;
 
     newBodySize = pResponse->body.size + realSize + 1;
@@ -43,30 +39,23 @@ size_t nbHttpResponseAppendBody(char *pContents, size_t size, size_t nmemb,
     return realSize;
 }
 
-NbResult nbHttpClientApiGet(NbHttpClient client, NbHttpResponse **ppResponse,
-                            const char *pQueryFormat, ...)
+void nbHttpResponseHeaders(void *pPtr, NbHttpResponse *pResponse,
+        void (*pParseFn)(void *pPtr, const char *pKey, char **ppValOutBuffer))
 {
-    char url[URL_MAX_SIZE] = {0};
-    size_t urlLen;
-    va_list args;
+    pParseFn(pPtr, "x-rate-limit-remaining",
+             &pResponse->header.pXRateLimitRemaining);
 
-    if (client == NULL || ppResponse == NULL || pQueryFormat == NULL)
-        return NB_RESULT_INVALID_PARAMETER;
+    pParseFn(pPtr, "x-rate-limit-reset", &pResponse->header.pXRateLimitReset);
 
-    urlLen = URL_MAX_SIZE - nbGetApiInfo()->apiBaseUrlLen - 1;
-
-    strncpy(url, nbGetApiInfo()->pApiBaseUrl, urlLen);
-
-    va_start(args, pQueryFormat);
-    vsnprintf(url + nbGetApiInfo()->apiBaseUrlLen, urlLen, pQueryFormat, args);
-    va_end(args);
-
-    return nbHttpClientGet(client, ppResponse, url);
+    pParseFn(pPtr, "artist_name", &pResponse->header.pArtistName);
+    pParseFn(pPtr, "artist_href", &pResponse->header.pArtistHref);
+    pParseFn(pPtr, "anime_name", &pResponse->header.pAnimeName);
+    pParseFn(pPtr, "source_url", &pResponse->header.pSourceUrl);
 }
 
 void nbHttpResponseDestroy(NbHttpResponse *pResponse)
 {
-    if (pResponse == NULL) {
+    if (pResponse != NULL) {
         free(pResponse->body.pPtr);
         free(pResponse->header.pXRateLimitRemaining);
         free(pResponse->header.pXRateLimitReset);

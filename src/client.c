@@ -16,15 +16,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include <tinycthread.h>
 
 #include "nekosbest.h"
 #include "httpclient.h"
-#include "version.h"
 
 /* https://en.wikipedia.org/wiki/Xorshift */
-static uint32_t XORSHIFT32(uint32_t prevState)
+static uint32_t xorshift32(uint32_t prevState)
 {
     prevState ^= prevState << 13;
 	prevState ^= prevState >> 17;
@@ -33,13 +34,14 @@ static uint32_t XORSHIFT32(uint32_t prevState)
     return prevState;
 }
 
-unsigned int nbClientRandom(NbClient client, unsigned int min,
-                            unsigned int max)
+uint32_t nbClientRandom(NbClient client, uint32_t min, uint32_t max)
 {
     if (client == NULL)
         return 0;
 
-    client->randomState = XORSHIFT32(client->randomState);
+    mtx_lock(&client->mutex);
+    client->randomState = xorshift32(client->randomState);
+    mtx_unlock(&client->mutex);
 
     return min + (client->randomState % (max - min + 1));
 }
@@ -71,6 +73,41 @@ void nbClientSetLastError(NbClient client, NbResult error)
     *tssResultPtr = error;
 }
 
+NbHttpResponse *nbClientApiGet(NbClient client, const char *pQuery, ...)
+{
+    NbHttpResponse *pResponse = NULL;
+    char url[NB_URL_MAX_SIZE] = {0};
+    NbResult result = NB_RESULT_OK;
+    size_t urlLen;
+    va_list args;
+
+    if (client == NULL)
+        return NULL;
+
+    if (pQuery == NULL) {
+        nbClientSetLastError(client, NB_RESULT_INVALID_PARAMETER);
+        return NULL;
+    }
+
+    urlLen = NB_URL_MAX_SIZE - nbGetApiInfo()->apiBaseUrlLen - 1;
+
+    strncpy(url, nbGetApiInfo()->pApiBaseUrl, urlLen);
+
+    va_start(args, pQuery);
+
+    vsnprintf(url + nbGetApiInfo()->apiBaseUrlLen, urlLen, pQuery, args);
+    
+    va_end(args);
+
+    mtx_lock(&client->mutex);
+    result = nbHttpClientGet(client->httpClient, &pResponse, url);
+    mtx_unlock(&client->mutex);
+
+    nbClientSetLastError(client, result);
+
+    return pResponse;
+}
+
 NB_API NbResult nbCreateClient(NbClient *pClient)
 {
     NbResult result;
@@ -99,7 +136,7 @@ NB_API NbResult nbCreateClient(NbClient *pClient)
         return result;
     }
     
-    pTmpClient->randomState = XORSHIFT32((uint32_t) time(NULL));
+    pTmpClient->randomState = xorshift32((uint32_t) time(NULL));
 
     *pClient = pTmpClient;
 

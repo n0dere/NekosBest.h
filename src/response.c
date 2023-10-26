@@ -39,25 +39,6 @@ static char *nbStrDupN(const char *pString, size_t stringSize)
     return pBuffer;
 }
 
-static void nbJsonObjToIndividualResponse(NbIndividualResponse *pResponseOut,
-                                          JSON_Object *pObject)
-{
-    const char *pAnimeName, *pArtistHref, *pArtistName;
-    const char *pSourceUrl, *pUrl;
-
-    pAnimeName = json_object_get_string(pObject, "anime_name");
-    pArtistHref = json_object_get_string(pObject, "artist_href");
-    pArtistName = json_object_get_string(pObject, "artist_name");
-    pSourceUrl = json_object_get_string(pObject, "source_url");
-    pUrl = json_object_get_string(pObject, "url");
-
-    pResponseOut->pAnimeName = nbStrDup(pAnimeName);
-    pResponseOut->pArtistHref = nbStrDup(pArtistHref);
-    pResponseOut->pArtistName = nbStrDup(pArtistName);
-    pResponseOut->pSourceUrl = nbStrDup(pSourceUrl);
-    pResponseOut->pUrl = nbStrDup(pUrl);
-}
-
 NbBufferResponse *nbBufferResponseFromHttpResponse(NbClient client,
                                                    NbHttpResponse *pResponse)
 {
@@ -106,9 +87,11 @@ NbBufferResponse *nbBufferResponseFromHttpResponse(NbClient client,
 NbResponse *nbResponseFromHttpResponse(NbClient client,
                                        NbHttpResponse *pHttpResponse)
 {
+    const char *pAnimeName, *pArtistHref, *pArtistName;
+    const char *pSourceUrl, *pUrl;
     NbResponse *pResponse = NULL;
     JSON_Value *pRootValue;
-    JSON_Object *pRoot;
+    JSON_Object *pRoot, *pResult;
     JSON_Array *pResults;
     size_t i;
 
@@ -155,8 +138,19 @@ NbResponse *nbResponseFromHttpResponse(NbClient client,
     }
 
     for (i = 0; i < pResponse->resultsCount; ++i) {
-        nbJsonObjToIndividualResponse(&pResponse->pResults[i],
-                                      json_array_get_object(pResults, i));
+        pResult = json_array_get_object(pResults, i);
+
+        pAnimeName = json_object_get_string(pResult, "anime_name");
+        pArtistHref = json_object_get_string(pResult, "artist_href");
+        pArtistName = json_object_get_string(pResult, "artist_name");
+        pSourceUrl = json_object_get_string(pResult, "source_url");
+        pUrl = json_object_get_string(pResult, "url");
+
+        pResponse->pResults[i].pAnimeName = nbStrDup(pAnimeName);
+        pResponse->pResults[i].pArtistHref = nbStrDup(pArtistHref);
+        pResponse->pResults[i].pArtistName = nbStrDup(pArtistName);
+        pResponse->pResults[i].pSourceUrl = nbStrDup(pSourceUrl);
+        pResponse->pResults[i].pUrl = nbStrDup(pUrl);
     }
 
     json_value_free(pRootValue);

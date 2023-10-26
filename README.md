@@ -3,7 +3,7 @@
 
 ### TODO:
 
-- [ ] fix httpclients
-- [ ] header doc
-- [ ] rewrite cmake files
+- [ ] ~~fix httpclients~~
+- [x] header doc
+- [x] rewrite cmake files
 - [ ] README.md

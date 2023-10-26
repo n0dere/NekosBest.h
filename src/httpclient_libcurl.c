@@ -21,11 +21,13 @@
 extern size_t nbHttpResponseAppendBody(char *pContents, size_t size,
         size_t nmemb, NbHttpResponse *pResponse);
 
-static void parseHeaderValue(
-    const char *pContents,
-    const char *pHeaderKey,
-    char **ppValueDest
-) {
+extern void nbHttpResponseHeaders(void *pPtr, NbHttpResponse *pResponse,
+        void (*pParseFn)(void *pPtr, const char *pKey, char **ppValOutBuffer));
+
+static void parseHeaderValue(void *pPtr, const char *pHeaderKey,
+                             char **ppValueDest)
+{
+    const char *pContents = (const char*) pPtr;
     char format[512] = {0};
 
     if (pContents == NULL || pHeaderKey == NULL || ppValueDest == NULL)
@@ -45,59 +47,27 @@ static void parseHeaderValue(
     sscanf(pContents, format, *ppValueDest);
 }
 
-static size_t curlHttpHeaderFunction(
-    char *pContents,
-    size_t size,
-    size_t nmemb,
-    NbHttpResponse *pResponse
-) {
-    parseHeaderValue(pContents, "x-rate-limit-remaining",
-        &pResponse->header.pXRateLimitRemaining
-    );
-
-    parseHeaderValue(pContents, "x-rate-limit-reset",
-        &pResponse->header.pXRateLimitReset
-    );
-
-    parseHeaderValue(pContents, "artist_name",
-        &pResponse->header.pArtistName
-    );
-    
-    parseHeaderValue(pContents, "artist_href",
-        &pResponse->header.pArtistHref
-    );
-    
-    parseHeaderValue(pContents, "anime_name",
-        &pResponse->header.pAnimeName
-    );
-    
-    parseHeaderValue(pContents, "source_url",
-        &pResponse->header.pSourceUrl
-    );
-
+static size_t curlHttpHeaderFunction(char *pContents, size_t size,
+                                     size_t nmemb, NbHttpResponse *pResponse)
+{
+    nbHttpResponseHeaders(pContents, pResponse, parseHeaderValue);
     return size * nmemb;
 }
 
-static void curlHttpSetOptions(
-    CURL *pCurl,
-    const char *pUrl,
-    NbHttpResponse *pResponse
-) {
+static void curlHttpSetOptions(CURL *pCurl, const char *pUrl,
+                               NbHttpResponse *pResponse)
+{
     curl_easy_setopt(pCurl, CURLOPT_USERAGENT, NB_HTTPCLIENT_USERAGENT);
-
     curl_easy_setopt(pCurl, CURLOPT_URL, pUrl);
     curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, pResponse);
     curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, nbHttpResponseAppendBody);
-    
     curl_easy_setopt(pCurl, CURLOPT_HEADERDATA, pResponse);
     curl_easy_setopt(pCurl, CURLOPT_HEADERFUNCTION, curlHttpHeaderFunction);
-    
     curl_easy_setopt(pCurl, CURLOPT_HEADER, 0L);
 }
 
-NbResult nbHttpClientCreate(
-    NbHttpClient *pHttpClient
-) {
+NbResult nbHttpClientCreate(NbHttpClient *pHttpClient)
+{
     CURL* pCurlSession = curl_easy_init();
 
     if (pCurlSession == NULL)
@@ -108,11 +78,9 @@ NbResult nbHttpClientCreate(
     return NB_RESULT_OK;
 }
 
-NbResult nbHttpClientGet(
-    NbHttpClient httpClient, 
-    NbHttpResponse **ppResponse, 
-    const char *pUrl
-) {
+NbResult nbHttpClientGet(NbHttpClient httpClient, NbHttpResponse **ppResponse, 
+                         const char *pUrl)
+{
     CURL *pCurlSession = (CURL*) httpClient;
     NbResult result = NB_RESULT_OK;
     NbHttpResponse *pResponse = NULL;
@@ -133,42 +101,46 @@ NbResult nbHttpClientGet(
         return NB_RESULT_HTTPCLIENT_INTERNAL_ERROR;
     }
 
-    curl_easy_getinfo(
-        pCurlSession, CURLINFO_RESPONSE_CODE, &pResponse->status
-    );
+    curl_easy_getinfo(pCurlSession, CURLINFO_RESPONSE_CODE,
+                      &pResponse->status);
 
     *ppResponse = pResponse;
 
     return NB_RESULT_OK;
 }
 
-void nbHttpClientDestroy(
-    NbHttpClient pHttpClient
-) {
+void nbHttpClientDestroy(NbHttpClient pHttpClient)
+{
     if (pHttpClient != NULL)
         curl_easy_cleanup((CURL*) pHttpClient);
 }
 
-char *nbHttpEscape(
-    const char *pString
-) {
+char *nbHttpEscape(const char *pString)
+{
     char *pCurlString, *pEscaped = NULL;
     size_t size;
 
     if (pString != NULL) {
         pCurlString = curl_easy_escape(NULL, pString, 0);
+
+        /* LIBCURL docs:
+         * You must curl_free the returned string when you are done with it.
+         * 
+         * So I use calloc to allocate memory for the string and copy the
+         * result of curl_escape into it.
+         */
         size = strlen(pCurlString);
         pEscaped = calloc(size + 1, sizeof *pEscaped);
         strncpy(pEscaped, pCurlString, size);
+        
         curl_free(pCurlString);
     }
 
     return pEscaped;
 }
 
-char *nbHttpUnescape(
-    const char *pString
-) {
+char *nbHttpUnescape(const char *pString)
+{
     char *pCurlString, *pUnescaped = NULL;
     int decodeLen;
 

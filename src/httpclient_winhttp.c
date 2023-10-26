@@ -17,28 +17,38 @@
 #include <string.h>
 #include <shlwapi.h>
 
+#define ESCAPED_CHAR_SIZE   3
+
 extern size_t nbHttpResponseAppendBody(char *pContents, size_t size,
         size_t nmemb, NbHttpResponse *pResponse);
 
-static void httpClientHeader(
-    HINTERNET request,
-    LPCWSTR wideKey,
-    char **ppDestBufferPtr
-) {
-    DWORD size = 0;
+extern void nbHttpResponseHeaders(void *pPtr, NbHttpResponse *pResponse,
+        void (*pParseFn)(void *pPtr, const char *pKey, char **ppValOutBuffer));
+
+static void queryHeaderValue(HINTERNET request, const char *pKey,
+                             char **ppDestBufferPtr)
+{
     LPVOID wideBuffer = NULL;
     BOOL results = FALSE;
+    LPWSTR wideKey = NULL;
+    size_t keyLen = strlen(pKey);
+    DWORD size = 0;
+    
+    wideKey = calloc(keyLen + 1, sizeof(WCHAR));
+
+    if (wideKey == NULL)
+        return;
+
+    MultiByteToWideChar(CP_UTF8, 0, pKey, -1, wideKey, (int) keyLen);
 
     WinHttpQueryHeaders(request, WINHTTP_QUERY_CUSTOM, wideKey, NULL, &size,
-        WINHTTP_NO_HEADER_INDEX
-    );
+                        WINHTTP_NO_HEADER_INDEX);
     
     if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
         wideBuffer = calloc(size, 1 /* byte */);
 
         results = WinHttpQueryHeaders(request, WINHTTP_QUERY_CUSTOM, wideKey,
-            wideBuffer, &size, WINHTTP_NO_HEADER_INDEX
-        );
+                wideBuffer, &size, WINHTTP_NO_HEADER_INDEX);
         
         size /= sizeof(WCHAR);
     }
@@ -48,18 +58,17 @@ static void httpClientHeader(
 
         if (*ppDestBufferPtr != NULL) {
             WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, *ppDestBufferPtr,
-                (int) size, NULL, NULL
-            );
+                                (int) size, NULL, NULL);
         }
     }
 
     free(wideBuffer);
+    free(wideKey);
 }
 
-static NbResult httpParseResponse(
-    NbHttpResponse **ppResponse,
-    HINTERNET request
-) {
+static NbResult httpParseResponse(NbHttpResponse **ppResponse,
+                                  HINTERNET request)
+{
     NbHttpResponse *pResponse = calloc(1, sizeof *pResponse);
     DWORD downloaded, size;
     char *pBuffer;
@@ -88,41 +97,17 @@ static NbResult httpParseResponse(
     }
     while (size > 0);
 
-    httpClientHeader(request, L"x-rate-limit-remaining",
-        &pResponse->header.pXRateLimitRemaining
-    );
-
-    httpClientHeader(request, L"x-rate-limit-reset",
-        &pResponse->header.pXRateLimitReset
-    );
-
-    httpClientHeader(request, L"artist_name",
-        &pResponse->header.pArtistName
-    );
-    
-    httpClientHeader(request, L"artist_href",
-        &pResponse->header.pArtistHref
-    );
-    
-    httpClientHeader(request, L"anime_name",
-        &pResponse->header.pAnimeName
-    );
-    
-    httpClientHeader(request, L"source_url",
-        &pResponse->header.pSourceUrl
-    );
+    nbHttpResponseHeaders(request, pResponse, queryHeaderValue);
 
     *ppResponse = pResponse;
 
     return NB_RESULT_OK;
 }
 
-static NbResult httpClientGetPerform(
-    HINTERNET httpSession, 
-    NbHttpResponse **ppResponse,
-    LPCWSTR hostname,
-    LPCWSTR urlPath
-) {
+static NbResult httpClientGetPerform(HINTERNET httpSession, 
+                                     NbHttpResponse **ppResponse,
+                                     LPCWSTR hostname, LPCWSTR urlPath)
+{
     NbResult result = NB_RESULT_OK;
     HINTERNET connect, request;
     BOOL winResult;
@@ -142,8 +127,7 @@ static NbResult httpClientGetPerform(
     }
 
     winResult = WinHttpSendRequest(request, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
-        WINHTTP_NO_REQUEST_DATA, 0, 0, 0
-    );
+                                   WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
 
     if (winResult == FALSE) {
         WinHttpCloseHandle(connect);
@@ -212,7 +196,8 @@ NbResult nbHttpClientGet(NbHttpClient httpClient, NbHttpResponse **ppResponse,
     urlComp.dwHostNameLength = (DWORD) -1;
     urlComp.dwUrlPathLength = (DWORD) -1;
     
-    crackRes = WinHttpCrackUrl((LPCWSTR) urlWide, (DWORD) urlLen, 0, &urlComp);
+    crackRes = WinHttpCrackUrl((LPCWSTR) urlWide, (DWORD) urlLen, 0,
+                               &urlComp);
 
     if (crackRes == FALSE) {
         free(urlWide);
@@ -252,7 +237,7 @@ char *nbHttpEscape(const char *pString)
     if (pString == NULL)
         return NULL;
     
-    size = strlen(pString) * 3 + 1;
+    size = (DWORD) strlen(pString) * ESCAPED_CHAR_SIZE + 1;
     escaped = calloc(size, sizeof *escaped);
 
     if (escaped == NULL)
@@ -274,7 +259,7 @@ char *nbHttpUnescape(const char *pString)
     if (pString == NULL)
         return NULL;
     
-    size = strlen(pString) + 1;
+    size = (DWORD) strlen(pString) + 1;
     unescaped = calloc(size, sizeof *unescaped);
 
     if (unescaped == NULL)

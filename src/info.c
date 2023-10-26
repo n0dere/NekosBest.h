@@ -14,17 +14,17 @@
 
 #include "version.h"
 
+static const NbApiInfo nbApiInfo = {
+    .apiVersion = 2,
+    .pApiVersionString = "v2",
+    .apiVersionStringLen = 2,
+    .pApiBaseUrl = "https://nekos.best/api/v2",
+    .apiBaseUrlLen = 25,
+    .pLibVersion = NB_LIB_VERSION,
+    .libVersionLen = (sizeof(NB_LIB_VERSION) / sizeof(char)) - 1,
+};
+
 NB_API const NbApiInfo *nbGetApiInfo(void)
 {
-    static const NbApiInfo nbApiInfo = {
-        .apiVersion = 2,
-        .pApiVersionString = "v2",
-        .apiVersionStringLen = 2,
-        .pApiBaseUrl = "https://nekos.best/api/v2",
-        .apiBaseUrlLen = 25,
-        .pLibVersion = NB_LIB_VERSION,
-        .libVersionLen = (sizeof(NB_LIB_VERSION) / sizeof(char)) - 1,
-    };
-
     return &nbApiInfo;
 }

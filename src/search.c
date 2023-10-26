@@ -48,9 +48,9 @@ static bool isRateLimited(NbClient client)
 {
     time_t curTime = time(NULL);
     time_t gmCurTime = mktime(gmtime(&curTime));
-    time_t resets_in = client->ratelimit.resetsIn;
+    time_t resetsIn = client->ratelimit.resetsIn;
     
-    return (gmCurTime < resets_in) && (client->ratelimit.remaining == 0);
+    return (gmCurTime < resetsIn) && (client->ratelimit.remaining == 0);
 }
 
 static void updateRateLimit(NbClient client, const NbHttpResponse *pResponse)
@@ -77,7 +77,6 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
     NbImageFormat imageFormat = NB_IMAGE_FORMAT_UNKNOWN;
     char *pEscapedQuery = NULL;
     NbResponse *pResponse = NULL;
-    NbResult result = NB_RESULT_OK;
     size_t queryLen;
 
     if (client == NULL)
@@ -116,12 +115,13 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
     }
 
     if (pOptions->imageFormat == NB_IMAGE_FORMAT_RANDOM)
-        imageFormat = nbClientRandom(client, 1, 2); /* PNG(1) / GIF(2) */
+        /* NB_IMAGE_FORMAT_PNG == 1 / NB_IMAGE_FORMAT_GIF == 2 */
+        imageFormat = nbClientRandom(client, 1, 2);
     else
         imageFormat = pOptions->imageFormat;
 
     if (pOptions->pCategory == NULL) {
-        result = nbHttpClientApiGet(client->httpClient, &pHttpResponse,
+        pHttpResponse = nbClientApiGet(client,
             "/search?query=%s&type=%u&amount=%u", pEscapedQuery,
             (uint32_t) imageFormat, (uint32_t) pOptions->amount
         );
@@ -135,7 +135,7 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
             return NULL;
         }
 
-        result = nbHttpClientApiGet(client->httpClient, &pHttpResponse,
+        pHttpResponse = nbClientApiGet(client,
             "/search?query=%s&type=%u&amount=%u&category=%s",
             pEscapedQuery, (uint32_t) imageFormat,
             (uint32_t) pOptions->amount, pOptions->pCategory
@@ -144,10 +144,8 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
 
     free(pEscapedQuery);
 
-    if (result != NB_RESULT_OK) {
-        nbClientSetLastError(client, result);
+    if (pHttpResponse == NULL)
         return NULL;
-    }
 
     if (pHttpResponse->status != 200) {
         nbClientSetLastError(client, NB_RESULT_BAD_RESPONSE_STATUS_CODE);

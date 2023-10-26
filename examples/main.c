@@ -2,40 +2,46 @@
 
 #include "nekosbest.h"
 
-#if 0
+#if 1
+
+#define CATEGORY_NAME "baka"
+
 int main(void)
 {
     NbClient pClient;
     NbBufferResponse *pResponse;
     FILE *fp;
-    int i;
 
     if (nbCreateClient(&pClient) != NB_RESULT_OK)
         return -1;
     
-    pResponse = nbClientFetchFile(pClient, "yawn");
+    pResponse = nbClientFetchFile(pClient, CATEGORY_NAME);
 
     if (pResponse == NULL) {
         printf("%d\n", (int) nbClientGetLastError(pClient));
         return -1;
     }
+
+    printf("%s\n", nbGetApiInfo()->pLibVersion);
+
+    printf("Anime Name: %s\n", pResponse->meta.pAnimeName);
+    printf("Artist Href: %s\n", pResponse->meta.pArtistHref);
+    printf("Artist Name: %s\n", pResponse->meta.pArtistName);
+    printf("Source Url: %s\n", pResponse->meta.pSourceUrl);
     
-    fp = fopen("random_yawn.gif", "wb");
+    fp = fopen("random_"CATEGORY_NAME".gif", "wb");
 
     if (fp == NULL) {
         nbDestroyBufferResponse(pResponse);
         return -1;
     }
-
     fwrite(pResponse->pBytes, pResponse->byteCount, 1, fp);
     fclose(fp);
 
     nbDestroyBufferResponse(pResponse);
     return 0;
 }
-#endif
-
-#if 1
+#else
 
 static void printResponse(const NbResponse *pResponse)
 {
@@ -72,6 +78,9 @@ int main(void)
     }
 
     pResponse = nbClientFetch(client, "waifu", 10);
+
+
+
     printResponse(pResponse);
     nbDestroyResponse(pResponse);
     return 0;

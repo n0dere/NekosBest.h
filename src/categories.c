@@ -35,18 +35,22 @@ static const char *aCategoriesGIF[] = {
 
 const char *nbPickRandomCategory(NbClient client)
 {
-    size_t n;
+    const char **pCategories = NULL;
+    size_t categoriesSize;
 
-    if (client != NULL) {
-        n = nbClientRandom(client, 0, CATEGORIES_TOTAL);
-        
-        if (n < CATEGORIES_PNG_COUNT)
-            return aCategoriesPNG[n];
-        else
-            return aCategoriesGIF[n - CATEGORIES_PNG_COUNT];
+    if (client == NULL)
+        return "NULL";
+
+    if (nbClientRandom(client, 0, 1) == 0) {
+        pCategories = aCategoriesPNG;
+        categoriesSize = CATEGORIES_PNG_COUNT;
+    }
+    else {
+        pCategories = aCategoriesGIF;
+        categoriesSize = CATEGORIES_GIF_COUNT;
     }
 
-    return "NULL";
+    return pCategories[nbClientRandom(client, 0, categoriesSize)];
 }
 
 NbImageFormat nbGetCategoryImageFormat(const char *pCategory)

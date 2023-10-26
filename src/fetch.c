@@ -24,7 +24,6 @@ NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
 {
     NbHttpResponse *pHttpResponse = NULL;
     NbResponse *pResponse = NULL;
-    NbResult result = NB_RESULT_OK;
 
     if (client == NULL)
         return NULL;
@@ -42,15 +41,12 @@ NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
         nbClientSetLastError(client, NB_RESULT_AMOUNT_IS_INCORRECT);
         return NULL;
     }
-    
-    result = nbHttpClientApiGet(client->httpClient, &pHttpResponse,
-        "/%s?amount=%u", pCategory, (uint32_t) amount
-    );
 
-    if (result != NB_RESULT_OK) {
-        nbClientSetLastError(client, result);
+    pHttpResponse = nbClientApiGet(client, "/%s?amount=%u", pCategory,
+                                   (uint32_t) amount);
+
+    if (pHttpResponse == NULL)
         return NULL;
-    }
 
     if (pHttpResponse->status != 200) {
         nbClientSetLastError(client, NB_RESULT_BAD_RESPONSE_STATUS_CODE);

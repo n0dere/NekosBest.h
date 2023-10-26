@@ -1,14 +1,23 @@
 cmake_minimum_required(VERSION 3.10)
-project(NekosBest VERSION 2.0.0)
+project(NekosBest.h VERSION 2.0.0 LANGUAGES C)
 
-set(NB_VERSION_HEADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/include CACHE STRING "")
+string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" NB_STANDALONE)
 
-configure_file(
-    ${PROJECT_SOURCE_DIR}/cmake/version.h.in
-    ${NB_VERSION_HEADER_DIR}/version.h
-)
+include(GNUInstallDirs)
+include(CMakeDependentOption)
+
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option(NB_BUILD_EXAMPLES "Build NekosBest.h examples" ${NB_STANDALONE})
+option(NB_INSTALL "Generate installation target" ${NB_STANDALONE})
+
+cmake_dependent_option(NB_WINHTTP "Use WINHTTP instead of libcurl" ON "WIN32" OFF)
 
 add_subdirectory(src)
 
-add_executable(test main.c)
-target_link_libraries(test PRIVATE NekosBest)
+if (NB_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif ()
+
+if (NB_INSTALL)
+    install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif ()
