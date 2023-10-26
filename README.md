@@ -7,3 +7,4 @@
 - [x] header doc
 - [x] rewrite cmake files
 - [ ] README.md
+- [x] examples
