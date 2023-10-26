@@ -1,7 +1,8 @@
 find_package(Threads REQUIRED)
 
 add_library(NekosBest
-    categories.c client.c fetch.c info.c response.c search.c httpclient.c
+    categories.c client.c fetch.c info.c response.c search.c
+    httpclient.c download.c
     ${PROJECT_SOURCE_DIR}/dev-deps/parson/parson.c
     ${PROJECT_SOURCE_DIR}/dev-deps/tinycthread/source/tinycthread.c
 )

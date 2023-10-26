@@ -71,6 +71,11 @@ NbBufferResponse *nbBufferResponseFromHttpResponse(NbClient client,
 
     memcpy(pBufResponse->pBytes, pResponse->body.pPtr, pResponse->body.size);
 
+    if (memcmp(pResponse->body.pPtr, "GIF89a", 6) == 0)
+        pBufResponse->imageFormat = NB_IMAGE_FORMAT_GIF;
+    else if (memcmp(pResponse->body.pPtr + 1, "PNG", 3) == 0)
+        pBufResponse->imageFormat = NB_IMAGE_FORMAT_PNG;
+
     pAnimeName = pResponse->header.pAnimeName;
     pArtistHref = pResponse->header.pArtistHref;
     pArtistName = pResponse->header.pArtistName;

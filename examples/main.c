@@ -4,7 +4,9 @@
 
 #if 1
 
-#define CATEGORY_NAME "baka"
+#define CATEGORY_NAME "nope"
+
+#define safe_str(str) ((str) ? (str) : "NULL")
 
 int main(void)
 {
@@ -24,13 +26,18 @@ int main(void)
 
     printf("%s\n", nbGetApiInfo()->pLibVersion);
 
-    printf("Anime Name: %s\n", pResponse->meta.pAnimeName);
-    printf("Artist Href: %s\n", pResponse->meta.pArtistHref);
-    printf("Artist Name: %s\n", pResponse->meta.pArtistName);
-    printf("Source Url: %s\n", pResponse->meta.pSourceUrl);
-    
-    fp = fopen("random_"CATEGORY_NAME".gif", "wb");
+    printf("Anime Name: %s\n", safe_str(pResponse->meta.pAnimeName));
+    printf("Artist Href: %s\n", safe_str(pResponse->meta.pArtistHref));
+    printf("Artist Name: %s\n", safe_str(pResponse->meta.pArtistName));
+    printf("Source Url: %s\n", safe_str(pResponse->meta.pSourceUrl));
 
+    if (pResponse->imageFormat == NB_IMAGE_FORMAT_PNG)
+        fp = fopen("random_"CATEGORY_NAME".png", "wb");
+    else if (pResponse->imageFormat == NB_IMAGE_FORMAT_GIF)
+        fp = fopen("random_"CATEGORY_NAME".gif", "wb");
+    else
+        fp = fopen("random_"CATEGORY_NAME".unknown", "wb");
+    
     if (fp == NULL) {
         nbDestroyBufferResponse(pResponse);
         return -1;

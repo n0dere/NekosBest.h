@@ -124,6 +124,8 @@ struct _NbBufferResponse {
     char *pBytes;
     /* The size of the data buffer in bytes */
     size_t byteCount;
+    /* Downloaded image format */
+    NbImageFormat imageFormat;
 };
 
 struct _NbSearchOptions {
@@ -208,6 +210,19 @@ NB_API NbResponse *nbClientSearch(NbClient client, const char *pQuery,
  */
 NB_API NbBufferResponse *nbClientFetchFile(NbClient client,
                                            const char *pCategory);
+
+/* Downloads a single image file from the API using the given response object.
+ *
+ * Args:    client - a client object
+ *          pResponse - a pointer to a NbIndividualResponse object
+ *
+ * Returns: a pointer to a NbBufferResponse object that contains the result from
+ *          the API, or NULL if an error occurred. The caller is responsible for
+ *          freeing the buffer response object with nbDestroyBufferResponse when
+ *          it is no longer needed.
+ */
+NB_API NbBufferResponse *nbClientDownloadResponse(NbClient client,
+        const NbIndividualResponse *pResponse);
 
 /* Destroys a client object that was created by nbCreateClient and frees the
  * memory allocated for it.

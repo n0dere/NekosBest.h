@@ -14,10 +14,9 @@
 
 #include <stdint.h>
 
-#include "client.h"
-#include "httpclient.h"
 #include "response.h"
 #include "categories.h"
+#include "client.h"
 
 NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
                                  size_t amount)
@@ -63,26 +62,15 @@ NB_API NbResponse *nbClientFetch(NbClient client, const char *pCategory,
 NB_API NbBufferResponse *nbClientFetchFile(NbClient client,
                                            const char *pCategory)
 {
+    NbBufferResponse *pBufResponse = NULL;
     NbResponse *pResponse = nbClientFetch(client, pCategory, 1);
-    NbHttpResponse *pHttpResponse = NULL;
-    NbBufferResponse *pBufferResponse = NULL;
-    NbResult result;
 
     if (pResponse == NULL)
         return NULL;
-    
-    result = nbHttpClientGet(client->httpClient, &pHttpResponse,
-                             pResponse->pResults[0].pUrl);
-    
-    if (result != NB_RESULT_OK) {
-        nbDestroyResponse(pResponse);
-        nbClientSetLastError(client, result);
-        return NULL;
-    }
 
-    pBufferResponse = nbBufferResponseFromHttpResponse(client, pHttpResponse);
-
+    pBufResponse = nbClientDownloadResponse(client, &pResponse->pResults[0]);
+        
     nbDestroyResponse(pResponse);
 
-    return pBufferResponse;
+    return pBufResponse;
 }
