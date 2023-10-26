@@ -19,5 +19,5 @@ if (NB_BUILD_EXAMPLES)
 endif ()
 
 if (NB_INSTALL)
-    install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(FILES include/nekosbest.h DESTINATION include)
 endif ()

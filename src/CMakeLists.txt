@@ -52,7 +52,5 @@ target_include_directories(NekosBest PRIVATE
 configure_file(version.h.in ${CMAKE_CURRENT_LIST_DIR}/version.h)
 
 if (NB_INSTALL)
-    install(TARGETS NekosBest EXPORT NekosBestTargets
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    )
+    install(TARGETS NekosBest EXPORT NekosBestTargets DESTINATION lib)
 endif ()
