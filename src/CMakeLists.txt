@@ -3,8 +3,8 @@ find_package(Threads REQUIRED)
 add_library(NekosBest
     categories.c client.c fetch.c info.c response.c search.c
     httpclient.c download.c
-    ${PROJECT_SOURCE_DIR}/dev-deps/parson/parson.c
-    ${PROJECT_SOURCE_DIR}/dev-deps/tinycthread/source/tinycthread.c
+    ${PROJECT_SOURCE_DIR}/dev-deps/parson.c
+    ${PROJECT_SOURCE_DIR}/dev-deps/tinycthread.c
 )
 
 target_link_libraries(NekosBest PRIVATE Threads::Threads)
@@ -44,13 +44,12 @@ endif ()
 target_include_directories(NekosBest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_include_directories(NekosBest PRIVATE
-    ${PROJECT_SOURCE_DIR}/dev-deps/tinycthread/source
-    ${PROJECT_SOURCE_DIR}/dev-deps/parson
-    ${CMAKE_CURRENT_LIST_DIR}
+    ${PROJECT_SOURCE_DIR}/dev-deps ${CMAKE_CURRENT_LIST_DIR}
 )
 
 configure_file(version.h.in ${CMAKE_CURRENT_LIST_DIR}/version.h)
 
 if (NB_INSTALL)
-    install(TARGETS NekosBest EXPORT NekosBestTargets DESTINATION lib)
+    install(TARGETS NekosBest EXPORT NekosBestTargets
+            DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif ()

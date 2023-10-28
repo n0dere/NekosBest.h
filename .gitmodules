@@ -1,6 +1,0 @@
-[submodule "dev-deps/parson"]
-	path = dev-deps/parson
-	url = https://github.com/kgabis/parson
-[submodule "dev-deps/tinycthread"]
-	path = dev-deps/tinycthread
-	url = https://github.com/tinycthread/tinycthread

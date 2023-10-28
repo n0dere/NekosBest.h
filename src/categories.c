@@ -50,7 +50,7 @@ const char *nbPickRandomCategory(NbClient client)
         categoriesSize = CATEGORIES_GIF_COUNT;
     }
 
-    return pCategories[nbClientRandom(client, 0, categoriesSize)];
+    return pCategories[nbClientRandom(client, 0, (uint32_t)categoriesSize)];
 }
 
 NbImageFormat nbGetCategoryImageFormat(const char *pCategory)
