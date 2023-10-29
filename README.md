@@ -1,8 +1,8 @@
 # NekosBest.h
 
-<img align="right" style="padding: 2px" src="https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white">
-<img align="right" style="padding: 2px" src="https://img.shields.io/badge/CMake-%23008FBA.svg?style=for-the-badge&logo=cmake&logoColor=white">
-<img align="right" style="padding: 2px" src="https://img.shields.io/badge/nekos.best-%23E91E63.svg?style=for-the-badge">
+[<img align="right" style="padding: 2px" src="https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white">](https://github.com/search?q=repo%3An0dere%2FNekosBest.h++language%3AC&type=code)
+[<img align="right" style="padding: 2px" src="https://img.shields.io/badge/CMake-%23008FBA.svg?style=for-the-badge&logo=cmake&logoColor=white">](https://cmake.org/)
+[<img align="right" style="padding: 2px" src="https://img.shields.io/badge/nekos.best-%23E91E63.svg?style=for-the-badge">](https://nekos.best/)
 
 NekosBest.h is a wrapper over the nekos.best API.  
 It is written in pure C and is easy to use.
