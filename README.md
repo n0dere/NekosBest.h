@@ -1,12 +1,11 @@
 # NekosBest.h
 
-[![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)](https://github.com/search?q=repo%3An0dere%2FNekosBest.h++language%3AC&type=code)
-[![CMake](https://img.shields.io/badge/CMake-%23008FBA.svg?style=for-the-badge&logo=cmake&logoColor=white)](https://cmake.org/)
-[![nekos.best](https://img.shields.io/badge/nekos.best-%23E91E63.svg?style=for-the-badge)](https://nekos.best/)
+<img align="right" style="padding: 2px" src="https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white">
+<img align="right" style="padding: 2px" src="https://img.shields.io/badge/CMake-%23008FBA.svg?style=for-the-badge&logo=cmake&logoColor=white">
+<img align="right" style="padding: 2px" src="https://img.shields.io/badge/nekos.best-%23E91E63.svg?style=for-the-badge">
 
-NekosBest.h is a wrapper over the nekos.best API, with which you can get gifs
-and png with cat girls, download them to your computer and more! It is written
-in pure C and is easy to use.
+NekosBest.h is a wrapper over the nekos.best API.  
+It is written in pure C and is easy to use.
 
 ## Example
 
@@ -69,7 +68,19 @@ For more examples, see [examples/](examples) directory
      (Windows) is used as an http client (Windows only)
 
 ## Building with NekosBest.h & Installation
-NekosBest.h can be installed and used in several ways:
+
+### `add_subdirectory` (CMake)
+1. Clone the NekosBest.h repository from GitHub into your project directory,
+or add it as a submodule to your Git repository:
+```sh
+git submodule add https://github.com/n0dere/NekosBest.h
+```
+2. Add the following lines to your CMakeLists.txt file, where `MyCoolApp` is
+the name of your target:
+```cmake
+add_subdirectory(NekosBest.h)
+target_link_libraries(MyCoolApp PRIVATE NekosBest)
+```
 
 ### Install using CMake on Linux
 1. Clone the [NekosBest.h](https://github.com/n0dere/NekosBest.h) repository
@@ -86,19 +97,6 @@ cmake --build build --target install --config Release
 4. Build your project using the compiler flags `-lNekosBest -lcurl`
 ```sh
 gcc -o main.out main.c -lNekosBest -lcurl
-```
-
-### Using CMake `add_subdirectory`
-1. Clone the NekosBest.h repository from GitHub into your project directory,
-or add it as a submodule to your Git repository:
-```sh
-git submodule add https://github.com/n0dere/NekosBest.h
-```
-2. Add the following lines to your CMakeLists.txt file, where `MyCoolApp` is
-the name of your executable:
-```cmake
-add_subdirectory(NekosBest.h)
-target_link_libraries(MyCoolApp PRIVATE NekosBest)
 ```
 
 ## Documentation
