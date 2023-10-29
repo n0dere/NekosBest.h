@@ -8,7 +8,6 @@ NB_API NbBufferResponse *nbClientDownloadResponse(NbClient client,
         const NbIndividualResponse *pResponse)
 {
     NbHttpResponse *pHttpResponse = NULL;
-    NbBufferResponse *pBufferResponse = NULL;
     NbResult result;
 
     if (client == NULL)
