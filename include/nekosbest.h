@@ -29,9 +29,6 @@ extern "C" {
     #define NB_API
 #endif
 
-typedef enum _NbResult NbResult;
-typedef enum _NbImageFormat NbImageFormat;
-
 typedef struct _NbApiInfo NbApiInfo;
 typedef struct _NbClient *NbClient;
 typedef struct _NbIndividualResponse NbIndividualResponse;
@@ -39,7 +36,7 @@ typedef struct _NbResponse NbResponse;
 typedef struct _NbBufferResponse NbBufferResponse;
 typedef struct _NbSearchOptions NbSearchOptions;
 
-enum _NbResult {
+typedef enum {
     /* The operation was successful */
     NB_RESULT_OK,
     /* There was not enough memory to complete the operation */
@@ -65,9 +62,9 @@ enum _NbResult {
     /* The query parameter was too long or too short
        (3 < strlen(query) < 150) */
     NB_RESULT_QUERY_LEN_IS_INCORRECT,
-};
+} NbResult;
 
-enum _NbImageFormat {
+typedef enum {
     /* The image format is unknown or not supported by the library */
     NB_IMAGE_FORMAT_UNKNOWN,
     /* The image format is PNG */
@@ -76,7 +73,7 @@ enum _NbImageFormat {
     NB_IMAGE_FORMAT_GIF,
     /* The image format is random (same as unknown) */
     NB_IMAGE_FORMAT_RANDOM = NB_IMAGE_FORMAT_UNKNOWN,
-};
+} NbImageFormat;
 
 struct _NbApiInfo {
     /* The version number of the nekos.best API */

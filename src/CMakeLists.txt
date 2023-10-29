@@ -16,7 +16,7 @@ if (MSVC)
 endif ()
 
 if (NB_WINHTTP AND WIN32)
-    target_link_libraries(NekosBest PRIVATE winhttp shlwapi)
+    target_link_libraries(NekosBest PUBLIC winhttp shlwapi)
     target_sources(NekosBest PRIVATE httpclient_winhttp.c)
 else ()
     find_package(CURL REQUIRED)
